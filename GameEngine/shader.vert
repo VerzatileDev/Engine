@@ -9,3 +9,5 @@ void main()
     gl_Position = vec4(aPos, 1.0); // see how we directly give a vec3 to vec4's constructor
     vertexColor = aColor; // set ourColor to the input color we got from the vertex data
 }
+
+// https://marketplace.visualstudio.com/items?itemName=DanielScherzer.GLSL <- Resource to extension
