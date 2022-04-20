@@ -46,7 +46,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    /* Build & Compile Shader */
+    /* Build & Compile Shader's */
     shader_s engineShader("Resources/shader.vert", "Resources/shader.frag");
 
     //-----------------------------------------------------------------------------------------------------
@@ -97,14 +97,14 @@ int main(int argc, char** argv)
     glEnableVertexAttribArray(2);
 
 
-    // load and create a texture 
-    // Bounding Texture
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // Define Textures
+    unsigned int texture1, texture2;
 
-    // Generating Texture
-    // set the texture wrapping parameters
+    /* TEXTURE 1  load and create a texture Bounding Texture*/
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+
+    // Generating Texture  " set the texture wrapping parameters "
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // set texture filtering parameters
@@ -114,7 +114,8 @@ int main(int argc, char** argv)
 
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
-    unsigned char* data = stbi_load(("Textures/brickTextrue.jpg"), &width, &height, &nrChannels, 0); // <-- Make a Resource File later on !
+    stbi_set_flip_vertically_on_load(true); // Let std_image.h know to flip Texture on y axis
+    unsigned char* data = stbi_load(("Textures/brickTextrue.jpg"), &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -128,6 +129,38 @@ int main(int argc, char** argv)
 
 
 
+    /* TEXTURE 2 */
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    data = stbi_load(("Textures/pepeTexture.png"), &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+
+    // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
+    // -------------------------------------------------------------------------------------------
+    engineShader.use(); // don't forget to activate/use the shader before setting uniforms!
+    // either set it manually like so:
+    glUniform1i(glGetUniformLocation(engineShader.ID, "texture1"), 0);
+    // or set it via the texture class
+    engineShader.setInt("texture2", 1);
+
 
     /* Screen Rendering LOOP !*/
     while (!glfwWindowShouldClose(window))
@@ -139,13 +172,17 @@ int main(int argc, char** argv)
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        // Render the Rectangle Shader
+        // Rbind textures on corresponding texture units
+        // bind textures on corresponding texture units
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+
+        // Render container
         engineShader.use();
         float offset = 0.0f; // Horizontal Offset
         engineShader.setFloat("xOffset", offset);
-
-        // Rectangle itself
-        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);// CHanged from Array !
 
