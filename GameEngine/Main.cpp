@@ -87,6 +87,10 @@ int main(int argc, char** argv)
 
         // Render the triangle
         engineShader.use();
+
+        // Horizontal Offset
+        float offset = 0.5f;
+        engineShader.setFloat("xOffset", offset);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
