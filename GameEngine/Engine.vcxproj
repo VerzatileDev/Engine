@@ -145,17 +145,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
-    <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Resources\glad.c" />
+    <ClCompile Include="Resources\ImageLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shader_s.h" />
-    <ClInclude Include="stb_image.h" />
+    <None Include="Resources\shader.frag" />
+    <None Include="Resources\shader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.frag" />
-    <None Include="shader.vert" />
+    <ClInclude Include="Resources\shader_s.h" />
+    <ClInclude Include="Resources\stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

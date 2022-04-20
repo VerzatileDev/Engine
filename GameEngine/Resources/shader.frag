@@ -1,7 +1,6 @@
 #version 330 core
 out vec4 FragColor;
 
-
 in vec3 vertexColor; // <-- Recived from vertex
 in vec2 TexCoord;
 

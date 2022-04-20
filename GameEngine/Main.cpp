@@ -1,9 +1,10 @@
 #include <glad/glad.h> // Include this before Glfw
 #include <GLFW/glfw3.h>
 
-#include "shader_s.h"
+#include "Resources/shader_s.h"
+#include "Resources/stb_image.h"
 #include <iostream>
-#include "stb_image.h"
+
 
 /* Global Window definition */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -46,12 +47,9 @@ int main(int argc, char** argv)
     }
 
     /* Build & Compile Shader */
-    shader_s engineShader("shader.vert", "shader.frag");
+    shader_s engineShader("Resources/shader.vert", "Resources/shader.frag");
 
     //-----------------------------------------------------------------------------------------------------
-
-
-
 
 
 
