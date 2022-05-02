@@ -29,7 +29,7 @@ float yaw = -90.0f;
 float pitch = 0.0f;
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
-float fov = 45.0f;
+float fov = 45.0f; // Scroll..
 
 /* TIME */
 float deltaTime = 0.0f;
@@ -74,11 +74,11 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    
+    glEnable(GL_DEPTH_TEST);
+
     /* Build & Compile Shader's */
     shader_s engineShader("Resources/shader.vert", "Resources/shader.frag");
-
-    //-----------------------------------------------------------------------------------------------------
-    glEnable(GL_DEPTH_TEST);
 
     /* Vertex Data */
     float vertices[] = {
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
         engineShader.use();
 
         //pass projection matrix to shader
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         engineShader.setMat4("projection", projection);
 
         // create transformations
