@@ -150,6 +150,8 @@
     <ClCompile Include="Resources\ImageLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\light_cube.frag" />
+    <None Include="Resources\light_cube.vert" />
     <None Include="Resources\shader.frag" />
     <None Include="Resources\shader.vert" />
   </ItemGroup>

@@ -32,6 +32,12 @@
     <None Include="Resources\shader.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Resources\light_cube.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\light_cube.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\shader_s.h">
