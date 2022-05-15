@@ -156,7 +156,7 @@
     <None Include="Resources\shader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Resources\camera.h" />
+    <ClInclude Include="camera.h" />
     <ClInclude Include="Resources\shader_s.h" />
     <ClInclude Include="Resources\stb_image.h" />
   </ItemGroup>
