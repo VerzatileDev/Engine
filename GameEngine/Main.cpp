@@ -1,3 +1,8 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+
 #include <glad/glad.h> // Include this before Glfw
 #include <GLFW/glfw3.h>
 #include "Resources/stb_image.h"
@@ -19,6 +24,18 @@ unsigned int loadTexture(const char* path);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+// Defined GUI Colors And Style Debug Menu
+void Colors()
+{
+    ImGuiStyle& style = ImGui::GetStyle( );
+
+    style.Colors[ImGuiCol_WindowBg] = ImColor(16, 16, 16);
+    style.Colors[ImGuiCol_Border] = ImColor(19, 19, 19);
+    style.Colors[ImGuiCol_Text] = ImColor(230, 230, 250);
+}
+bool Enable_debug_menu = false;
+bool canUse = true;
+
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -35,7 +52,6 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int main(int argc, char** argv)
 {
-    //-----------------------------------------------------------------------------------------------------
     /* INITIALIZE / CONFIGURE glfw https://www.glfw.org/docs/latest/window.html#window_hints */
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -146,7 +162,6 @@ int main(int argc, char** argv)
     glBindVertexArray(lightCubeVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // note that we update the lamp's position attribute's stride to reflect the updated buffer data
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -157,6 +172,20 @@ int main(int argc, char** argv)
     lightingShader.use();
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
+
+
+    //Initialize ImGui
+    #pragma region MyRegion
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	//ImGui::StyleColorsDark();
+	Colors();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+    #pragma endregion
+
+    
 
 
     /* Screen Rendering LOOP !*/
@@ -172,6 +201,14 @@ int main(int argc, char** argv)
         /* Render*/
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+        if (Enable_debug_menu) {
+            // Let GUI know of Frame Change
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+        }
         
         lightingShader.use();
         lightingShader.setVec3("light.position", lightPos);
@@ -213,17 +250,44 @@ int main(int argc, char** argv)
         lightCubeShader.setMat4("view", view);
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        model = glm::scale(model, glm::vec3(0.2f));
         lightCubeShader.setMat4("model", model);
 
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
+        // Draw the GUI information 
+        #pragma region MyRegion
+        if (Enable_debug_menu) {
+            ImGui::SetNextWindowPos(ImVec2(5, 5));
+            ImGui::SetNextWindowSize(ImVec2(300, 500));
+            ImGui::SetNextWindowBgAlpha(0.5);
+
+            ImGui::Begin("MainWindow", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+            ImGui::Text("Debug Menu ");
+            //ImGui::Text("% f, % f", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+            ImGui::Spacing();
+            ImGui::Text("Camera Location");
+            ImGui::Text("% f, % f, % f", camera.Position.x, camera.Position.y, camera.Position.z);
+
+
+            ImGui::End();
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
+        #pragma endregion
+
+		
 
         glfwSwapBuffers(window); // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved)
         glfwPollEvents(); // checks if any events are triggered
     }
     
+    // Terminate GUI On Screen Processes
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &lightCubeVAO);
     glDeleteBuffers(1, &VBO);
@@ -232,7 +296,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-// Proccess user inputs 
+// Process user inputs 
 void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -255,6 +319,15 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
     
+    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS && canUse) {
+        Enable_debug_menu = !Enable_debug_menu;
+        canUse = false;
+        std::cout << Enable_debug_menu << std::endl;
+    }
+    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE) {
+        canUse = true;
+    }
+
 }
 
 unsigned int loadTexture(const char* path)
@@ -320,7 +393,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
-// When Window size is changed by (Os Or User) Callback is exacuted here.
+// When Window size is changed by (Os Or User) Callback is executed here.
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and 
