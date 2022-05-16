@@ -38,6 +38,8 @@ bool canUse = true;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+// Mouse
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -46,7 +48,6 @@ bool firstMouse = true;
 /* TIME */
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -77,6 +78,7 @@ int main(int argc, char** argv)
 
     glfwSetScrollCallback(window, scroll_callback); /* ZOOM */
 
+    // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // ::Glad:: "Load OpenGl Function Pointers"
@@ -139,7 +141,18 @@ int main(int argc, char** argv)
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
-    
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 
     unsigned int VBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
@@ -188,6 +201,7 @@ int main(int argc, char** argv)
     
 
 
+
     /* Screen Rendering LOOP !*/
     while (!glfwWindowShouldClose(window))
     {
@@ -198,29 +212,30 @@ int main(int argc, char** argv)
 
         processInput(window);
 
-        /* Render*/
+        /* Render */
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+        // Let GUI know of Frame Change
         if (Enable_debug_menu) {
-            // Let GUI know of Frame Change
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
         }
         
         lightingShader.use();
-        lightingShader.setVec3("light.position", lightPos);
+        lightingShader.setVec3("light.direction", lightPos);
         lightingShader.setVec3("viewPos", camera.Position);
 
         // light properties
         lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		lightingShader.setFloat("light.constant", 1.0f);
+		lightingShader.setFloat("light.linear", 0.09f);
+		lightingShader.setFloat("light.quadratic", 0.032f);
 
         // material properties
-        lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
         lightingShader.setFloat("material.shininess", 32.0f);
         
         // View - PRojection Transformations
@@ -240,9 +255,19 @@ int main(int argc, char** argv)
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
 
-        // render cube
-        glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(cubeVAO);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			// calculate the model matrix for each object and pass it to shader before drawing
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			lightingShader.setMat4("model", model);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 
         //draw the lamp object
         lightCubeShader.use();
@@ -268,8 +293,19 @@ int main(int argc, char** argv)
             //ImGui::Text("% f, % f", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
             ImGui::Spacing();
             ImGui::Text("Camera Location");
-            ImGui::Text("% f, % f, % f", camera.Position.x, camera.Position.y, camera.Position.z);
+            ImGui::Text("%f, %f, %f", camera.Position.x, camera.Position.y, camera.Position.z);
+            
+            ImGui::Spacing();
+            ImGui::Text("Light Position");
+            ImGui::Text("%f, %f, %f",lightPos.x , lightPos.y, lightPos.z);
 
+			ImGui::Spacing();
+			ImGui::Text("Delta Time");
+			ImGui::Text("%f", deltaTime);
+
+			ImGui::Spacing();
+			ImGui::Text("FrameRate");
+			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate ,ImGui::GetIO().Framerate);
 
             ImGui::End();
             ImGui::Render();
@@ -278,7 +314,6 @@ int main(int argc, char** argv)
         #pragma endregion
 
 		
-
         glfwSwapBuffers(window); // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved)
         glfwPollEvents(); // checks if any events are triggered
     }
