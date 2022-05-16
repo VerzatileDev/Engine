@@ -44,7 +44,6 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
-
 /* TIME */
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -224,7 +223,10 @@ int main(int argc, char** argv)
         }
         
         lightingShader.use();
-        lightingShader.setVec3("light.direction", lightPos);
+        lightingShader.setVec3("light.position", camera.Position);
+        lightingShader.setVec3("light.direction", camera.Front);
+		lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+		lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
         lightingShader.setVec3("viewPos", camera.Position);
 
         // light properties
@@ -270,16 +272,16 @@ int main(int argc, char** argv)
 
 
         //draw the lamp object
-        lightCubeShader.use();
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-        lightCubeShader.setMat4("model", model);
+        //lightCubeShader.use();
+        //lightCubeShader.setMat4("projection", projection);
+        //lightCubeShader.setMat4("view", view);
+        //model = glm::mat4(1.0f);
+        //model = glm::translate(model, lightPos);
+        //model = glm::scale(model, glm::vec3(0.2f));
+        //lightCubeShader.setMat4("model", model);
 
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glBindVertexArray(lightCubeVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Draw the GUI information 
         #pragma region MyRegion
@@ -295,9 +297,9 @@ int main(int argc, char** argv)
             ImGui::Text("Camera Location");
             ImGui::Text("%f, %f, %f", camera.Position.x, camera.Position.y, camera.Position.z);
             
-            ImGui::Spacing();
-            ImGui::Text("Light Position");
-            ImGui::Text("%f, %f, %f",lightPos.x , lightPos.y, lightPos.z);
+            //ImGui::Spacing();
+            //ImGui::Text("Light Position");
+            //ImGui::Text("%f, %f, %f",lightPos.x , lightPos.y, lightPos.z);
 
 			ImGui::Spacing();
 			ImGui::Text("Delta Time");
