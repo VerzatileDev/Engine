@@ -1,6 +1,6 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 
 #include <glad/glad.h> // Include this before Glfw
@@ -12,7 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Resources/shader_s.h"
-#include "camera.h"
+#include "src/IO/camera.h"
 #include <iostream>
 
 /* Global Window definition */
@@ -184,8 +184,8 @@ int main(int argc, char** argv)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    unsigned int diffuseMap = loadTexture("Textures/container2.png");
-    unsigned int specularMap = loadTexture("Textures/container2_specular.png");
+    unsigned int diffuseMap = loadTexture("Assets/Textures/container2.png");
+    unsigned int specularMap = loadTexture("Assets/Textures/container2_specular.png");
 
     // shader configuration
     lightingShader.use();
@@ -225,60 +225,64 @@ int main(int argc, char** argv)
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
         }
-        
-        lightingShader.use();
-        lightingShader.setVec3("viewPos", camera.Position);
-        lightingShader.setFloat("material.shininess", 32.0f);
 
-        
-        // directional light
-        lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-        // point light 1
-        lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
-        lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-        lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-        lightingShader.setFloat("pointLights[0].constant", 1.0f);
-        lightingShader.setFloat("pointLights[0].linear", 0.09f);
-        lightingShader.setFloat("pointLights[0].quadratic", 0.032f);
-        // point light 2
-        lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
-        lightingShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
-        lightingShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-        lightingShader.setFloat("pointLights[1].constant", 1.0f);
-        lightingShader.setFloat("pointLights[1].linear", 0.09f);
-        lightingShader.setFloat("pointLights[1].quadratic", 0.032f);
-        // point light 3
-        lightingShader.setVec3("pointLights[2].position", pointLightPositions[2]);
-        lightingShader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
-        lightingShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
-        lightingShader.setFloat("pointLights[2].constant", 1.0f);
-        lightingShader.setFloat("pointLights[2].linear", 0.09f);
-        lightingShader.setFloat("pointLights[2].quadratic", 0.032f);
-        // point light 4
-        lightingShader.setVec3("pointLights[3].position", pointLightPositions[3]);
-        lightingShader.setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
-        lightingShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
-        lightingShader.setFloat("pointLights[3].constant", 1.0f);
-        lightingShader.setFloat("pointLights[3].linear", 0.09f);
-        lightingShader.setFloat("pointLights[3].quadratic", 0.032f);
-        // spotLight
-        lightingShader.setVec3("spotLight.position", camera.Position);
-        lightingShader.setVec3("spotLight.direction", camera.Front);
-        lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-        lightingShader.setFloat("spotLight.constant", 1.0f);
-        lightingShader.setFloat("spotLight.linear", 0.09f);
-        lightingShader.setFloat("spotLight.quadratic", 0.032f);
-        lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+       
+#pragma region Light Shaders
+
+		lightingShader.use();
+		lightingShader.setVec3("viewPos", camera.Position);
+		lightingShader.setFloat("material.shininess", 32.0f);
+
+		// directional light
+		lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+		lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+		lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+		lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+		// point light 1
+		lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+		lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+		lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+		lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+		lightingShader.setFloat("pointLights[0].constant", 1.0f);
+		lightingShader.setFloat("pointLights[0].linear", 0.09f);
+		lightingShader.setFloat("pointLights[0].quadratic", 0.032f);
+		// point light 2
+		lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+		lightingShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
+		lightingShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
+		lightingShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+		lightingShader.setFloat("pointLights[1].constant", 1.0f);
+		lightingShader.setFloat("pointLights[1].linear", 0.09f);
+		lightingShader.setFloat("pointLights[1].quadratic", 0.032f);
+		// point light 3
+		lightingShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+		lightingShader.setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
+		lightingShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
+		lightingShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+		lightingShader.setFloat("pointLights[2].constant", 1.0f);
+		lightingShader.setFloat("pointLights[2].linear", 0.09f);
+		lightingShader.setFloat("pointLights[2].quadratic", 0.032f);
+		// point light 4
+		lightingShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+		lightingShader.setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
+		lightingShader.setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
+		lightingShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+		lightingShader.setFloat("pointLights[3].constant", 1.0f);
+		lightingShader.setFloat("pointLights[3].linear", 0.09f);
+		lightingShader.setFloat("pointLights[3].quadratic", 0.032f);
+		// spotLight
+		lightingShader.setVec3("spotLight.position", camera.Position);
+		lightingShader.setVec3("spotLight.direction", camera.Front);
+		lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+		lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+		lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+		lightingShader.setFloat("spotLight.constant", 1.0f);
+		lightingShader.setFloat("spotLight.linear", 0.09f);
+		lightingShader.setFloat("spotLight.quadratic", 0.032f);
+		lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+		lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+#pragma endregion
+       
         
         // View - PRojection Transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -326,9 +330,8 @@ int main(int argc, char** argv)
 			lightCubeShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
-        // Draw the GUI information 
-        #pragma region MyRegion
+        
+        #pragma region ImGUI_Interface
         if (Enable_debug_menu) {
             ImGui::SetNextWindowPos(ImVec2(5, 5));
             ImGui::SetNextWindowSize(ImVec2(300, 500));
