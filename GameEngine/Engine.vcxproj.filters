@@ -45,10 +45,10 @@
     <ClCompile Include="include\imgui\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Resources\glad.c">
+    <ClCompile Include="src\Graphics\ImageLoader.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="Resources\ImageLoader.cpp">
+    <ClCompile Include="src\Graphics\glad.c">
       <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,24 +83,24 @@
     <ClInclude Include="include\imgui\imgui_impl_glfw.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\shader_s.h">
+    <ClInclude Include="src\Graphics\shader_s.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\stb_image.h">
+    <ClInclude Include="src\Graphics\stb_image.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\light_cube.frag">
+    <None Include="src\Graphics\light_cube.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Resources\light_cube.vert">
+    <None Include="src\Graphics\shader.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Resources\shader.frag">
+    <None Include="src\Graphics\shader.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Resources\shader.vert">
+    <None Include="src\Graphics\light_cube.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

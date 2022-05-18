@@ -5,13 +5,13 @@
 
 #include <glad/glad.h> // Include this before Glfw
 #include <GLFW/glfw3.h>
-#include "Resources/stb_image.h"
+#include "src/Graphics/stb_image.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Resources/shader_s.h"
+#include "src/Graphics/shader_s.h"
 #include "src/IO/camera.h"
 #include <iostream>
 
@@ -91,8 +91,8 @@ int main(int argc, char** argv)
     glEnable(GL_DEPTH_TEST);
 
     /* Build & Compile Shader's */
-    shader_s lightingShader("Resources/shader.vert", "Resources/shader.frag");
-    shader_s lightCubeShader("Resources/light_cube.vert", "Resources/light_cube.frag");
+    shader_s lightingShader("src/Graphics/shader.vert", "src/Graphics/shader.frag");
+    shader_s lightCubeShader("src/Graphics/light_cube.vert", "src/Graphics/light_cube.frag");
 
     /* Vertex Data */
     float vertices[] = {

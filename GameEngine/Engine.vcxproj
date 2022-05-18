@@ -154,8 +154,8 @@
     <ClCompile Include="include\imgui\imgui_tables.cpp" />
     <ClCompile Include="include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Resources\glad.c" />
-    <ClCompile Include="Resources\ImageLoader.cpp" />
+    <ClCompile Include="src\Graphics\glad.c" />
+    <ClCompile Include="src\Graphics\ImageLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\imgui\imconfig.h" />
@@ -167,15 +167,15 @@
     <ClInclude Include="include\imgui\imstb_rectpack.h" />
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
-    <ClInclude Include="Resources\shader_s.h" />
-    <ClInclude Include="Resources\stb_image.h" />
+    <ClInclude Include="src\Graphics\shader_s.h" />
+    <ClInclude Include="src\Graphics\stb_image.h" />
     <ClInclude Include="src\IO\camera.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\light_cube.frag" />
-    <None Include="Resources\light_cube.vert" />
-    <None Include="Resources\shader.frag" />
-    <None Include="Resources\shader.vert" />
+    <None Include="src\Graphics\light_cube.frag" />
+    <None Include="src\Graphics\light_cube.vert" />
+    <None Include="src\Graphics\shader.frag" />
+    <None Include="src\Graphics\shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
