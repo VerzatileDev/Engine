@@ -89,6 +89,15 @@
     <ClInclude Include="src\Graphics\stb_image.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Graphics\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Graphics\light_cube.vert">
