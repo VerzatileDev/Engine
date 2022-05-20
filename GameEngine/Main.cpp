@@ -89,6 +89,8 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    stbi_set_flip_vertically_on_load(true);
+
     glEnable(GL_DEPTH_TEST);
 
 	Shader ourShader("src/Graphics/light_cube.vert", "src/Graphics/light_cube.frag");
