@@ -83,9 +83,6 @@
     <ClInclude Include="include\imgui\imgui_impl_glfw.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graphics\shader_s.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Graphics\stb_image.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
@@ -110,6 +107,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="src\Graphics\light_cube.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="src\Graphics\depth_testing.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="src\Graphics\depth_testing.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

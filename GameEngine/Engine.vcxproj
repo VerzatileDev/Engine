@@ -171,11 +171,12 @@
     <ClInclude Include="src\Graphics\mesh.h" />
     <ClInclude Include="src\Graphics\model.h" />
     <ClInclude Include="src\Graphics\shader.h" />
-    <ClInclude Include="src\Graphics\shader_s.h" />
     <ClInclude Include="src\Graphics\stb_image.h" />
     <ClInclude Include="src\IO\camera.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\Graphics\depth_testing.frag" />
+    <None Include="src\Graphics\depth_testing.vert" />
     <None Include="src\Graphics\light_cube.frag" />
     <None Include="src\Graphics\light_cube.vert" />
     <None Include="src\Graphics\shader.frag" />
