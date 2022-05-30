@@ -59,8 +59,8 @@ int main(int argc, char** argv)
 {
     /* INITIALIZE / CONFIGURE glfw https://www.glfw.org/docs/latest/window.html#window_hints */
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     #ifdef __APPLE__ // <-- For Mac Os
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -94,10 +94,14 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-	Shader shader("src/Graphics/depth_testing.vert", "src/Graphics/depth_testing.frag");
+	
     
-
+	Shader shader("src/Graphics/stencil_testing.vert", "src/Graphics/stencil_testing.frag");
+	Shader shaderSingleColor("src/Graphics/stencil_testing.vert", "src/Graphics/stencil_single_color.frag");
     
     #pragma region Initialize_ImGui
 	IMGUI_CHECKVERSION();
@@ -154,7 +158,7 @@ int main(int argc, char** argv)
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 	float planeVertices[] = {
-		// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+		// positions          // texture Coords
 		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
 		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
 		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
@@ -209,7 +213,7 @@ int main(int argc, char** argv)
 
         /* Render */
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         // Let GUI know of Frame Change
         if (Enable_debug_menu) {
@@ -223,8 +227,24 @@ int main(int argc, char** argv)
 		glm::mat4 model = glm::mat4(1.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		shaderSingleColor.setMat4("view", view);
+		shaderSingleColor.setMat4("projection", projection);
+
+		shader.use();
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
+		
+		glStencilMask(0x00);
+		// floor
+		glBindVertexArray(planeVAO);
+		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		shader.setMat4("model", glm::mat4(1.0f));
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+
+		// 1st. render pass, draw objects as normal, writing to the stencil buffer
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
 		// cubes
 		glBindVertexArray(cubeVAO);
 		glActiveTexture(GL_TEXTURE0);
@@ -236,12 +256,34 @@ int main(int argc, char** argv)
 		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
 		shader.setMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		// floor
-		glBindVertexArray(planeVAO);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
-		shader.setMat4("model", glm::mat4(1.0f));
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// 2nd. render pass: now draw slightly scaled versions of the objects, this time disabling stencil writing.
+		// Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing 
+		// the objects' size differences, making it look like borders.
+		
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
+		shaderSingleColor.use();
+		float scale = 1.1f;
+
+		// cubes
+		glBindVertexArray(cubeVAO);
+		glBindTexture(GL_TEXTURE_2D, cubeTexture);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(scale, scale, scale));
+		shaderSingleColor.setMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(scale, scale, scale));
+		shaderSingleColor.setMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+		glStencilMask(0xFF);
+		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+		glEnable(GL_DEPTH_TEST);
 
         
         #pragma region ImGUI_Interface

@@ -115,5 +115,14 @@
     <None Include="src\Graphics\depth_testing.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="src\Graphics\stencil_testing.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="src\Graphics\stencil_testing.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="src\Graphics\stencil_single_color.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

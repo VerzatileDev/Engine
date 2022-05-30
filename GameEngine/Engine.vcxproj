@@ -181,6 +181,9 @@
     <None Include="src\Graphics\light_cube.vert" />
     <None Include="src\Graphics\shader.frag" />
     <None Include="src\Graphics\shader.vert" />
+    <None Include="src\Graphics\stencil_single_color.frag" />
+    <None Include="src\Graphics\stencil_testing.frag" />
+    <None Include="src\Graphics\stencil_testing.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
