@@ -124,5 +124,11 @@
     <None Include="src\Graphics\stencil_single_color.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="src\Graphics\blending.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="src\Graphics\blending.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

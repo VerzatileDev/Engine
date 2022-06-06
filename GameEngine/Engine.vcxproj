@@ -175,6 +175,8 @@
     <ClInclude Include="src\IO\camera.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\Graphics\blending.frag" />
+    <None Include="src\Graphics\blending.vert" />
     <None Include="src\Graphics\depth_testing.frag" />
     <None Include="src\Graphics\depth_testing.vert" />
     <None Include="src\Graphics\light_cube.frag" />

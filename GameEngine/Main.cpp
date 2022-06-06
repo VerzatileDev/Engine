@@ -15,8 +15,7 @@
 #include "src/Graphics/model.h"
 #include <iostream>
 
-
-/* Global Window definition */
+#pragma region Global Window definition
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -25,6 +24,7 @@ unsigned int loadTexture(const char* path);
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+#pragma endregion
 
 #pragma region Defined_GUI_Colors_&_Style_Debug_Menu
 void Colors()
@@ -57,7 +57,6 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int main(int argc, char** argv)
 {
-    /* INITIALIZE / CONFIGURE glfw https://www.glfw.org/docs/latest/window.html#window_hints */
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
@@ -66,9 +65,7 @@ int main(int argc, char** argv)
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     #endif
     
-    // Specify Window
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, " Game Engine Window Title ", NULL, NULL);
-    
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -76,13 +73,14 @@ int main(int argc, char** argv)
         return -1;
     }
     
+
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback); /* ZOOM */
 
     // tell GLFW to capture our mouse
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // <-- NORMAL  to enable
 
     // ::Glad:: "Load OpenGl Function Pointers"
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -92,16 +90,11 @@ int main(int argc, char** argv)
     }
     
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-	
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-	Shader shader("src/Graphics/stencil_testing.vert", "src/Graphics/stencil_testing.frag");
-	Shader shaderSingleColor("src/Graphics/stencil_testing.vert", "src/Graphics/stencil_single_color.frag");
+	Shader shader("src/Graphics/blending.vert", "src/Graphics/blending.frag");
     
     #pragma region Initialize_ImGui
 	IMGUI_CHECKVERSION();
@@ -112,6 +105,8 @@ int main(int argc, char** argv)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
     #pragma endregion
+
+    #pragma region Object Specifications
 
 	float cubeVertices[] = {
 		// positions          // texture Coords
@@ -167,7 +162,21 @@ int main(int argc, char** argv)
 		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
 		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 	};
+	float transparentVertices[] = {
+		// positions         // texture Coords
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
 
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+	};
+
+    #pragma endregion
+
+
+	// CUBE
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &cubeVBO);
@@ -179,7 +188,8 @@ int main(int argc, char** argv)
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glBindVertexArray(0);
-	// plane VAO
+
+	// PLANE
 	unsigned int planeVAO, planeVBO;
 	glGenVertexArrays(1, &planeVAO);
 	glGenBuffers(1, &planeVBO);
@@ -192,12 +202,36 @@ int main(int argc, char** argv)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glBindVertexArray(0);
 
-	// load textures
-	unsigned int cubeTexture = loadTexture("Assets/Textures/container2.png");
-	unsigned int floorTexture = loadTexture("Assets/Textures/container2.png");
+	// TRANSPARENTS
+	unsigned int transparentVAO, transparentVBO;
+	glGenVertexArrays(1, &transparentVAO);
+	glGenBuffers(1, &transparentVBO);
+	glBindVertexArray(transparentVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBindVertexArray(0);
+
+	// Texture Initialization
+	unsigned int cubeTexture = loadTexture("Assets/Textures/marble.jpg");
+	unsigned int floorTexture = loadTexture("Assets/Textures/metal.png");
+	unsigned int transparentTexture = loadTexture("Assets/Textures/blending_transparent_window.png");
+
+	// transparent window locations
+	vector<glm::vec3> windows
+	{
+		glm::vec3(-1.5f, 0.0f, -0.48f),
+		glm::vec3(1.5f, 0.0f, 0.51f),
+		glm::vec3(0.0f, 0.0f, 0.7f),
+		glm::vec3(-0.3f, 0.0f, -2.3f),
+		glm::vec3(0.5f, 0.0f, -0.6f)
+	};
 	
 
-	// shader configuration
+	// Configure ShaderS
 	shader.use();
 	shader.setInt("texture1", 0);
 
@@ -211,9 +245,20 @@ int main(int argc, char** argv)
 
         processInput(window);
 
+		// Sorted Automatically on their distance Value
+		// When rendering take each map values in reverse order " Farthest to nearest " and 
+		// Draw in order nessecary.
+		std::map<float, glm::vec3> sorted;
+		for (unsigned int i = 0; i < windows.size(); i++)
+		{
+			float distance = glm::length(camera.Position - windows[i]);
+			sorted[distance] = windows[i];
+		}
+
+
         /* Render */
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Let GUI know of Frame Change
         if (Enable_debug_menu) {
@@ -223,28 +268,11 @@ int main(int argc, char** argv)
         }
 
         shader.use();
-		
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		shaderSingleColor.setMat4("view", view);
-		shaderSingleColor.setMat4("projection", projection);
-
-		shader.use();
-		shader.setMat4("view", view);
+		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 model = glm::mat4(1.0f);
 		shader.setMat4("projection", projection);
-		
-		glStencilMask(0x00);
-		// floor
-		glBindVertexArray(planeVAO);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
-		shader.setMat4("model", glm::mat4(1.0f));
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-
-		// 1st. render pass, draw objects as normal, writing to the stencil buffer
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilMask(0xFF);
+		shader.setMat4("view", view);
 		// cubes
 		glBindVertexArray(cubeVAO);
 		glActiveTexture(GL_TEXTURE0);
@@ -256,35 +284,22 @@ int main(int argc, char** argv)
 		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
 		shader.setMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		// 2nd. render pass: now draw slightly scaled versions of the objects, this time disabling stencil writing.
-		// Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing 
-		// the objects' size differences, making it look like borders.
-		
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilMask(0x00);
-		glDisable(GL_DEPTH_TEST);
-		shaderSingleColor.use();
-		float scale = 1.1f;
-
-		// cubes
-		glBindVertexArray(cubeVAO);
-		glBindTexture(GL_TEXTURE_2D, cubeTexture);
+		// floor
+		glBindVertexArray(planeVAO);
+		glBindTexture(GL_TEXTURE_2D, floorTexture);
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-		model = glm::scale(model, glm::vec3(scale, scale, scale));
-		shaderSingleColor.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(scale, scale, scale));
-		shaderSingleColor.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		glStencilMask(0xFF);
-		glStencilFunc(GL_ALWAYS, 0, 0xFF);
-		glEnable(GL_DEPTH_TEST);
-
+		shader.setMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// windows (from furthest to nearest)
+		glBindVertexArray(transparentVAO);
+		glBindTexture(GL_TEXTURE_2D, transparentTexture);
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, it->second);
+			shader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
         
         #pragma region ImGUI_Interface
         if (Enable_debug_menu) {
